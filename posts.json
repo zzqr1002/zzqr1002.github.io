@@ -1,0 +1,40 @@
+[
+    {
+        "type": "image",
+        "src": "image/image1.jpg",
+        "alt": "分享1",
+        "description": "这是我的第一篇分享，记录了我最近的一次旅行。"
+    },
+    {
+        "type": "image",
+        "src": "image/image2.jpg",
+        "alt": "分享2",
+        "description": "这是我最近尝试的新菜谱，超级好吃！"
+    },
+     {
+        "type": "image",
+        "src": "image/image3.jpg",
+        "alt": "分享3",
+        "description": "这是我最近尝试的新菜谱，超级好吃！"
+    },
+    {
+        "type": "image",
+        "src": "image/image4.jpg",
+        "alt": "分享4",
+        "description": "这是我最近尝试的新菜谱，超级好吃！"
+    },
+   {
+        "type": "image",
+        "src": "image/image5.jpg",
+        "alt": "分享5",
+        "description": "这是我最近尝试的新菜谱，超级好吃！"
+    },
+
+
+    {
+        "type": "video",
+        "src": "video/video1.mp4",
+        "alt": "分享3",
+        "description": "这是我在海边拍摄的视频，希望你喜欢。"
+    }
+]
