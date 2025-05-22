@@ -1,40 +1,58 @@
 [
     {
         "type": "image",
-        "src": "image/image1.jpg",
+        "src": "./image/image1.jpg",
         "alt": "分享1",
-        "description": "这是我的第一篇分享，记录了我最近的一次旅行。"
+        "description": "这是我的第一篇分享，记录了我最近的一次旅行。",
+        "date": "2024-04-14",
+        "displayDate": "4月14日"
     },
     {
         "type": "image",
-        "src": "image/image2.jpg",
+        "src": "./image/image2.jpg",
         "alt": "分享2",
-        "description": "这是我最近尝试的新菜谱，超级好吃！"
-    },
-     {
-        "type": "image",
-        "src": "image/image3.jpg",
-        "alt": "分享3",
-        "description": "这是我最近尝试的新菜谱，超级好吃！"
+        "description": "这是我最近尝试的新菜谱，超级好吃！",
+        "date": "2024-04-13",
+        "displayDate": "4月13日"
     },
     {
         "type": "image",
-        "src": "image/image4.jpg",
-        "alt": "分享4",
-        "description": "这是我最近尝试的新菜谱，超级好吃！"
+        "src": "./image/image3.jpg",
+        "alt": "分享3",
+        "description": "这是我最近尝试的新菜谱，超级好吃！",
+        "date": "2024-04-12",
+        "displayDate": "4月12日"
     },
-   {
+    {
         "type": "image",
-        "src": "image/image5.jpg",
-        "alt": "分享5",
-        "description": "这是我最近尝试的新菜谱，超级好吃！"
+        "src": "./image/image4.jpg",
+        "alt": "分享4",
+        "description": "这是我最近尝试的新菜谱，超级好吃！",
+        "date": "2024-04-11",
+        "displayDate": "4月11日"
     },
-
-
+    {
+        "type": "image",
+        "src": "./image/image5.jpg",
+        "alt": "分享5",
+        "description": "这是我最近尝试的新菜谱，超级好吃！",
+        "date": "2024-04-10",
+        "displayDate": "4月10日"
+    },
     {
         "type": "video",
-        "src": "video/video1.mp4",
+        "src": "./video/video1.mp4",
         "alt": "分享3",
-        "description": "这是我在海边拍摄的视频，希望你喜欢。"
+        "description": "这是我在海边拍摄的视频，希望你喜欢。",
+        "date": "2024-04-09",
+        "displayDate": "4月9日"
+    },
+    {
+        "type": "image",
+        "src": "./image/20250315.png",
+        "alt": "分享3",
+        "description": "费纳奇镜",
+        "date": "2025-03-12",
+        "displayDate": "3月12日"
     }
 ]

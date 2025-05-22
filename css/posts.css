@@ -1,0 +1,107 @@
+/* 动态内容的容器样式 */
+#post-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: flex-start;
+}
+
+.post {
+    flex: 0 0 calc(33.333% - 1rem);
+    background-color: #F8F8FB;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+    overflow: hidden;
+    position: relative;
+}
+
+/* 保持1:1的比例 */
+.post::before {
+    content: '';
+    display: block;
+    width: 100%;
+    padding-top: 100%;
+}
+
+.post-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+.post-header {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 0.5rem;
+}
+
+.post-date {
+    color: #666;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.post-media {
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+/* 保持4:3的比例 */
+.post-media::before {
+    content: '';
+    display: block;
+    width: 100%;
+    padding-top: 75%;
+}
+
+.post-media img, .post-media video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    border-radius: 10px;
+}
+
+.post-description {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    text-align: center;
+    width: 100%;
+    color: #333;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .post {
+        flex: 0 0 calc(50% - 1rem);
+    }
+}
+
+@media (max-width: 480px) {
+    .post {
+        flex: 0 0 100%;
+    }
+}
+
+/* 加载状态的样式 */
+#loading {
+    text-align: center;
+    margin: 2rem 0;
+    font-size: 1.2rem;
+    color: #666;
+}

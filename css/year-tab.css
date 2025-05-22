@@ -1,0 +1,28 @@
+.year-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.year-tab {
+    padding: 0.5rem 1.5rem;
+    font-size: 1.2rem;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    position: relative;
+    color: #666;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-family: "LXGWNeoZhiSong", sans-serif;
+}
+
+.year-tab:hover {
+    background: #F8F8FB;
+}
+
+.year-tab.active {
+    background: #F8F8FB;
+    color: #666;
+} 

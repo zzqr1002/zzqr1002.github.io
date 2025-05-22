@@ -1,0 +1,22 @@
+/* 引入各个模块的样式 */
+@import url('header.css');
+@import url('posts.css');
+@import url('modal.css');
+@import url('footer.css');
+@import url('year-tab.css');
+
+/* 通用样式 */
+section {
+    text-align: center;
+    padding: 2rem 0;
+}
+
+section h2 {
+    margin-bottom: 1.5rem;
+}
+
+section p {
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的个人主页</title>
+    <link rel="stylesheet" href="css/main.css">
+    <style>
+        @font-face {
+          font-family: "LXGWNeoZhiSong";
+          src: url("fonts/LXGWNeoZhiSongPlus.ttf") format("truetype");
+        }
+        body {
+          font-family: "LXGWNeoZhiSong", sans-serif;
+          cursor: none; /* Hide default cursor */
+        }
+        
+        /* Custom cursor styles */
+        .custom-cursor {
+            position: fixed;
+            width: 32px;
+            height: 32px;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            background-image: url('./black_four_pointed_star.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+
+        /* 洛伦兹吸引子画布样式 */
+        #lorenzCanvas {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            pointer-events: none;
+            mix-blend-mode: screen;
+        }
+    </style>
+</head>
+<body>
+
+    
+    <header class="full-screen-header">
+        <video autoplay muted loop id="myVideo">
+            <source src="./模糊渐变动态2——使用Clipchamp制作.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+
+        <!-- 洛伦兹吸引子画布 -->
+        <canvas id="lorenzCanvas" width="1600" height="900"></canvas>
+
+        <!-- Custom cursor element -->
+        <div class="custom-cursor"></div>
+
+        <nav>
+            <div class="nav-content">
+                <div class="nav-links">
+                    <a href="#about">关于我</a>
+                    <a href="#posts">我的文章</a>
+                    <a href="#contact">联系方式</a>
+                </div>
+            </div>
+        </nav>
+        <div class="header-content">
+            <h1>AUTUMN</h1>
+          
+        </div>
+
+    </header>
+
+    <main>
+        <section id="about">
+            <h2>关于我</h2>
+            <p>嗨，我是一个喜欢分享生活点滴的人。欢迎来到我的个人主页！</p>
+        </section>
+
+        <section id="posts">
+            <h2>我的分享</h2>
+            <div class="year-tabs">
+                <button class="year-tab" data-year="2023">2023</button>
+                <button class="year-tab active" data-year="2024">2024</button>
+                <button class="year-tab" data-year="2025">2025</button>
+            </div>
+            <div id="loading">加载中...</div>
+            <div class="post-row" id="post-container"></div>
+        </section>
+
+        <section id="contact">
+            <h2>联系我</h2>
+            <p>如果你有任何问题或想和我交流，可以通过以下方式联系我：</p>
+            <p>Email: your.email@example.com</p>
+            <p>微信: your_wechat_id</p>
+        </section>
+    </main>
+
+
+
+    <!-- 弹窗结构 -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <img id="modal-image" src="" alt="">
+            <div class="zoom-controls">
+                <button id="reset-zoom">重置</button>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <!-- 引入anime.min.js库 -->
+    <script src="./js/anime.min.js"></script>
+    <!-- 引入烟花特效脚本 -->
+    <script src="./js/fireworks.js"></script>
+
+    <!-- 洛伦兹吸引子脚本 -->
+    <script>
+        // 获取Canvas和Context
+        const canvas = document.getElementById('lorenzCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // 洛伦兹方程参数和初始值
+        const sigma = 10;
+        const beta = 8 / 3;
+        const rho = 28;
+        let x = 0.1;
+        let y = 0.1;
+        let z = 0.1;
+        const dt = 0.01;
+        const points = [];
+        const trajectories = []; // 存储轨迹点
+        const balls = []; // 存储球体对象
+        const ballLifetime = 100; // 每个球体的生命周期（帧数）
+        let currentBallIndex = -1;
+
+        // 映射值到画布坐标
+        function mapValue(value, fromLow, fromHigh, toLow, toHigh) {
+            return toLow + (toHigh - toLow) * (value - fromLow) / (fromHigh - fromLow);
+        }
+
+        // 轨迹点的渐隐因子
+        function fadeFactor(index, totalLength) {
+            const fadeStartIndex = totalLength - 100; // 轨迹逐渐消失的开始位置
+            if (index < fadeStartIndex) {
+                return 1;
+            } else {
+                return 1 - (index - fadeStartIndex) / 100;
+            }
+        }
+
+        // 计算洛伦兹方程
+        function calculateLorenzEquation() {
+            for (let i = 0; i < 3000; i++) {
+                const dx = sigma * (y - x);
+                const dy = x * (rho - z) - y;
+                const dz = x * y - beta * z;
+
+                x += dx * dt;
+                y += dy * dt;
+                z += dz * dt;
+
+                points.push({ x: x, y: y, z: z });
+            }
+        }
+
+        // 创建新球体
+        function createNewBall() {
+            currentBallIndex++;
+            balls[currentBallIndex] = {
+                index: 0,
+                opacity: 1,
+                isMoving: true,
+                trajectory: [],
+                birthTime: Date.now()
+            };
+        }
+
+        // 绘制轨迹和球体
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 绘制所有球体的轨迹和当前状态
+            for (let i = 0; i <= currentBallIndex; i++) {
+                const ball = balls[i];
+
+                if (ball.isMoving) {
+                    // 更新轨迹
+                    if (ball.index < points.length) {
+                        ball.trajectory.push({
+                            x: mapValue(points[ball.index].x, -10, 10, 200, 1400),
+                            y: mapValue(points[ball.index].y, -10, 10, 200, 700),
+                            opacity: 1
+                        });
+                        ball.index++;
+                    }
+
+                    // 绘制轨迹
+                    for (let j = 0; j < ball.trajectory.length; j++) {
+                        const point = ball.trajectory[j];
+                        ctx.beginPath();
+                        ctx.arc(point.x, point.y, 2, 0, Math.PI * 2);
+                        ctx.fillStyle = `rgba(255, 255, 255, ${point.opacity * fadeFactor(j, ball.trajectory.length)})`;
+                        ctx.fill();
+                    }
+
+                    // 绘制球体
+                    if (ball.trajectory.length > 0) {
+                        const lastPoint = ball.trajectory[ball.trajectory.length - 1];
+                        ctx.beginPath();
+                        ctx.arc(lastPoint.x, lastPoint.y, 10, 0, Math.PI * 2);
+                        ctx.fillStyle = `rgba(255, 255, 255, ${ball.opacity})`;
+                        ctx.fill();
+                    }
+
+                    // 逐渐减少不透明度
+                    ball.opacity -= 0.002;
+
+                    // 如果球体透明度很低且轨迹完成，则停止移动
+                    if (ball.opacity <= 0 && ball.index >= points.length) {
+                        ball.isMoving = false;
+                    }
+                }
+            }
+
+            // 检查是否需要创建新球体
+            if (balls.length === 0 || (currentBallIndex >= 0 && !balls[currentBallIndex].isMoving)) {
+                createNewBall();
+            }
+
+            requestAnimationFrame(draw);
+        }
+
+        // 初始化
+        function init() {
+            calculateLorenzEquation();
+            createNewBall();
+        }
+
+        // 启动动画
+        init();
+        draw();
+    </script>
+
+    <!-- 确保 script 标签中包含 type="module" -->
+    <script type="module" src="js/main.js"></script>
+    <script>
+        // Custom cursor movement
+        const cursor = document.querySelector('.custom-cursor');
+        
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+
+
+
+        
+        
+
+    </script>
+</body>
+</html>

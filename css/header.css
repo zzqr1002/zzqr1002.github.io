@@ -1,0 +1,186 @@
+/* 基础样式重置 */
+
+
+
+@font-face {
+  font-family: "LXGWNeoZhiSong";
+  src:url("fonts/LXGWNeoZhiSongPlus.ttf") format("truetype");
+}
+
+
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+    font-family:  "LXGWNeoZhiSong", sans-serif;
+    scroll-behavior: smooth;
+
+    background-color: white;
+}
+
+
+/* 全屏头部样式 */
+.full-screen-header {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* 视频样式 */
+#myVideo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 确保视频铺满整个屏幕 */
+  z-index: 0; /* 确保视频在内容下方 */
+}
+
+/* 模糊遮罩效果 */
+.full-screen-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 20%; /* 调整模糊区域的高度 */
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1));
+  z-index: 1; /* 确保遮罩在视频上方，内容下方 */
+  
+}
+
+/* 标题样式 */
+.full-screen-header h1 {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 3rem;
+  font-weight: bold;
+  text-align: center;
+  z-index: 2; /* 确保标题在最上方 */
+}
+
+/* 导航栏容器样式 - 优化版 */
+nav {
+  /* 定位与布局 */
+  position: absolute;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: clamp(300px, 61.8%, 800px); /* 响应式宽度 - 优先使用clamp替代min/max-width */
+  
+  /* 可视层次 */
+  z-index: 2;
+  padding: 0.5rem 1.2rem; /* 增加水平内边距 */
+  
+  /* 背景与效果 */
+  background: rgba(255, 255, 255, 0.1); /* 半透明背景 */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px); /* Safari兼容 */
+  
+  /* 形状边与框 */
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  
+  /* 兼容性处理 */
+  @supports not (backdrop-filter: blur(10px)) {
+      background: rgba(255, 255, 255, 0.7); /* 降级处理 */
+  }
+}
+
+/* 移除噪点效果 */
+nav::after {
+  display: none;
+}
+
+.nav-content {
+    width: 100%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.logo {
+    font-size: 1.3rem;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.nav-links {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.nav-links a {
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    font-size: 1rem;
+    padding: 8px 15px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.nav-links a:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+/* 向下滚动按钮样式 */
+.scroll-down {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1; /* 确保按钮在最上方 */
+}
+
+.scroll-down button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    color: #fff;
+    background-color: rgba(0, 0, 0, 0.5); /* 初始透明度为50% */
+    border: 2px solid #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-align: center; /* 文字居中 */
+    outline: none; /* 去掉按钮的默认轮廓 */
+    position: fixed; /* 固定定位 */
+    left: 50%;       /* 距离左侧50% */
+    transform: translateX(-50%); /* 向左偏移自身宽度的50%，实现水平居中 */
+    width: 150px;    /* 按钮宽度 */
+    bottom: 100px;    /* 距离底部20像素 */
+}
+
+.scroll-down button:hover {
+    background-color: rgba(0, 0, 0, 0.8); /* 鼠标悬停时透明度变为80% */
+}
+
+
+
+
+
+
+@media (max-width: 768px) {
+  .full-screen-header h1 {
+    font-size: 2rem;
+  }
+
+  nav ul li a {
+    font-size: 1rem;
+  }
+
+  .scroll-down button {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
+}

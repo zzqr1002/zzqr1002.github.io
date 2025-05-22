@@ -1,0 +1,12 @@
+/* 页脚样式 */
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 0.5rem 1rem;
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+    font-family:  "LXGWNeoZhiSong", sans-serif;
+
+}
