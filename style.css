@@ -1,0 +1,220 @@
+:root {
+    --primary: #3354ff;       /* 亮蓝 */
+    --bg-main: #f3f2f8;       /* 灰紫背景 */
+    --bg-accent: #ebedff;     /* 淡蓝辅助 */
+    --text-dark: #1a1a1a;
+    --text-grey: #666666;
+    --white: #ffffff;
+    --card-radius: 16px;
+    --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-dark);
+    font-family: 'Plus Jakarta Sans', 'Noto Sans SC', sans-serif;
+    overflow-x: hidden; /* 防止横向滚动条 */
+}
+
+/* --- Hero Section (3D背景容器) --- */
+.hero-section {
+    height: 90vh;
+    width: 100%;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    background: var(--bg-main);
+}
+
+#canvas-container {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    /*z-index: 1;*/
+    /* opacity: 0.85; /* 略微透明，融合背景 */
+
+    background: linear-gradient(
+        to top,
+        #f3f2f8 0%,             /* 底部目标色（可换成任何色） */
+    
+        #f3f2f8 100%        /* 顶部完全透明 */
+      );
+      z-index: 0;               /* 保证在 WebGL 画布下方 */
+
+}
+
+
+
+#canvas-container canvas {
+  display: block;
+  position: relative;
+  z-index: 1; 
+  
+}
+
+
+
+
+
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    pointer-events: none; /* 让鼠标穿透文字，不影响视觉 */
+    text-shadow: 0 10px 30px rgba(255,255,255,0.8);
+}
+
+.hero-content h1 {
+    font-size: 5rem;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+    color: var(--text-dark);
+}
+
+.highlight { color: var(--primary); }
+
+.hero-content p {
+    font-size: 1.2rem;
+    color: var(--text-grey);
+    letter-spacing: 1px;
+}
+
+.scroll-indicator {
+    position: absolute;
+    bottom: 30px; left: 50%;
+    transform: translateX(-50%);
+    opacity: 0.5;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+}
+.scroll-indicator .line { width: 1px; height: 40px; background: var(--text-dark); }
+
+/* --- 导航栏 --- */
+.sticky-nav {
+    position: sticky; top: 20px ;z-index: 100;
+    display: flex; justify-content: center; pointer-events: none;
+}
+.sticky-nav ul {
+    pointer-events: auto; display: flex; gap: 8px;
+    background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px);
+    padding: 8px 12px; border-radius: 50px;
+    box-shadow: 0 4px 20px rgba(51, 84, 255, 0.1);
+    list-style: none;
+}
+.sticky-nav a {
+    text-decoration: none; color: var(--text-grey);
+    padding: 6px 16px; border-radius: 20px;
+    font-size: 0.9rem; font-weight: 600;
+    transition: var(--transition);
+}
+.sticky-nav a.active, .sticky-nav a:hover {
+    background-color: var(--primary); color: var(--white);
+}
+
+/* --- 瀑布流画廊 --- */
+.gallery-container {
+    max-width: 1400px; margin: 0 auto; padding: 4rem 20px;
+    position: relative; z-index: 2;
+}
+
+.year-section {
+    margin-bottom: 5rem;
+    opacity: 0; transform: translateY(30px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.year-section.visible { opacity: 1; transform: translateY(0); }
+
+.year-title {
+    font-size: 2rem; margin-bottom: 1.5rem;
+    color: var(--text-dark); padding-left: 10px;
+    border-left: 4px solid var(--primary);
+}
+
+/* CSS Column 布局 */
+.masonry-grid { column-count: 3; column-gap: 24px; }
+@media (max-width: 900px) { .masonry-grid { column-count: 2; } }
+@media (max-width: 600px) { .masonry-grid { column-count: 1; } }
+
+.masonry-item {
+    break-inside: avoid; margin-bottom: 24px;
+    background: var(--white); border-radius: var(--card-radius);
+    padding: 10px;
+    box-shadow: 0 10px 30px -5px rgba(0,0,0,0.03);
+    transition: var(--transition);
+    border: 1px solid rgba(255,255,255,0.6);
+}
+.masonry-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px -5px rgba(51, 84, 255, 0.15);
+    border-color: var(--primary);
+}
+
+.media-wrapper {
+    width: 100%; border-radius: 10px; overflow: hidden;
+    position: relative; background-color: var(--bg-accent); cursor: pointer;
+}
+.media-wrapper img, .media-wrapper video {
+    width: 100%; height: auto; display: block;
+    transition: transform 0.5s ease;
+}
+.masonry-item:hover .media-wrapper img { transform: scale(1.05); }
+
+/* 悬停遮罩 */
+.card-overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.2);
+    display: flex; justify-content: center; align-items: center;
+    opacity: 0; transition: opacity 0.3s;
+}
+.media-wrapper:hover .card-overlay { opacity: 1; }
+.card-overlay span {
+    background: rgba(255,255,255,0.95); padding: 8px 16px;
+    border-radius: 20px; font-size: 0.85rem; font-weight: 600; color: var(--primary);
+}
+
+/* 视频播放图标 */
+.play-icon {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 44px; height: 44px;
+    background: rgba(255,255,255,0.9); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--primary); pointer-events: none;
+}
+
+/* 卡片文字 (无日期版) */
+.card-meta { padding: 12px 6px 4px 6px; }
+.file-name {
+    font-size: 0.95rem; font-weight: 600; color: var(--text-dark);
+    margin-bottom: 0;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* --- Lightbox --- */
+.lightbox {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(243, 242, 248, 0.98);
+    z-index: 1000; display: none;
+    justify-content: center; align-items: center;
+    opacity: 0; transition: opacity 0.3s ease;
+}
+.lightbox.active { display: flex; opacity: 1; }
+.lightbox-content { max-width: 90%; max-height: 90%; position: relative; text-align: center; }
+.lightbox-content img, .lightbox-content video {
+    max-width: 100%; max-height: 85vh; border-radius: 4px;
+    box-shadow: 0 20px 60px rgba(51, 84, 255, 0.15);
+}
+.close-btn {
+    position: absolute; top: 30px; right: 40px;
+    font-size: 3rem; color: var(--text-dark); cursor: pointer; z-index: 1001;
+}
+.close-btn:hover { color: var(--primary); transform: rotate(90deg); }
+.zoom-hint { margin-top: 15px; color: var(--text-grey); font-size: 0.9rem; }
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+    .hero-content h1 { font-size: 3rem; }
+    .hero-section { height: 80vh; }
+}
