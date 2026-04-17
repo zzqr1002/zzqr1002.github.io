@@ -4,21 +4,37 @@ document.addEventListener('DOMContentLoaded', () => {
     init3DWater();
 
     // --- 2. 动态加载画廊内容 ---
+    const page = document.getElementById('page');
     const galleryRoot = document.getElementById('gallery-root');
     const navList = document.getElementById('nav-list');
+    const randomPickBtn = document.getElementById('random-pick-btn');
+    const randomPlaceholder = document.getElementById('random-placeholder');
+    const randomPreview = document.getElementById('random-preview');
+    const randomMedia = document.getElementById('random-media');
+    const randomFile = document.getElementById('random-file');
+    const siteNavLinks = document.querySelectorAll('.site-nav a[data-target]');
 
-    fetch('./data.json')
-        .then(response => response.json())
-        .then(data => {
-            renderGallery(data);
-            initInteractions();
-        })
-        .catch(error => {
-            console.error('无法加载 data.json。请确保已运行 python scan.py 并在本地服务器环境下打开。', error);
-            galleryRoot.innerHTML = '<p style="text-align:center; padding: 2rem;">请运行 scan.py 并刷新页面</p>';
-        });
+    const needsData = Boolean(galleryRoot || randomPickBtn);
+    if (needsData) {
+        fetch('./data.json')
+            .then(response => response.json())
+            .then(data => {
+                renderGallery(data);
+                initRandomPick(data);
+                initInteractions();
+            })
+            .catch(error => {
+                console.error('无法加载 data.json。请确保已运行 python scan.py 并在本地服务器环境下打开。', error);
+                if (galleryRoot) {
+                    galleryRoot.innerHTML = '<p style="text-align:center; padding: 2rem;">请运行 scan.py 并刷新页面</p>';
+                }
+            });
+    } else {
+        initInteractions();
+    }
 
     function renderGallery(items) {
+        if (!galleryRoot || !navList) return;
         galleryRoot.innerHTML = ''; 
         navList.innerHTML = '';
 
@@ -68,14 +84,106 @@ document.addEventListener('DOMContentLoaded', () => {
         if(navList.firstElementChild) navList.firstElementChild.querySelector('a').classList.add('active');
     }
 
+    function initRandomPick(items) {
+        if (!randomPickBtn || !randomMedia || !randomPreview || !randomPlaceholder) return;
+
+        const imageItems = items.filter(it => it && it.type === 'image' && it.src);
+        if (imageItems.length === 0) {
+            randomPickBtn.disabled = true;
+            randomPlaceholder.textContent = '未找到可抽取的图片（data.json 里没有 type=image 的资源）';
+            return;
+        }
+
+        let lastIndex = -1;
+        const pick = () => {
+            if (imageItems.length === 1) return 0;
+            let idx = Math.floor(Math.random() * imageItems.length);
+            if (idx === lastIndex) idx = (idx + 1) % imageItems.length;
+            lastIndex = idx;
+            return idx;
+        };
+
+        const showPicked = (item) => {
+            randomPlaceholder.hidden = true;
+            randomPreview.hidden = false;
+            randomPreview.classList.add('is-animating');
+
+            randomMedia.innerHTML = '';
+            const img = document.createElement('img');
+            img.alt = item.title || 'random';
+            img.src = item.src;
+            img.loading = 'eager';
+            img.addEventListener('load', () => img.classList.add('loaded'), { once: true });
+            img.addEventListener('click', () => {
+                const fn = window.openLightbox;
+                if (typeof fn === 'function') fn({ type: 'image', src: item.src });
+            });
+            randomMedia.appendChild(img);
+
+            if (randomFile) randomFile.textContent = item.title || item.src;
+
+            window.setTimeout(() => randomPreview.classList.remove('is-animating'), 520);
+        };
+
+        const doPick = () => {
+            randomPickBtn.disabled = true;
+            const idx = pick();
+            const item = imageItems[idx];
+            showPicked(item);
+            randomPickBtn.disabled = false;
+        };
+
+        randomPickBtn.addEventListener('click', doPick);
+    }
+
     // --- 3. 交互逻辑 (滚动、灯箱) ---
     function initInteractions() {
-        // Scroll Reveal
+        const getOffsetTopWithinScroll = (el) => {
+            if (!page) return el.offsetTop;
+            const pageRect = page.getBoundingClientRect();
+            const rect = el.getBoundingClientRect();
+            return (rect.top - pageRect.top) + page.scrollTop;
+        };
+
+        const updateSiteNavActive = () => {
+            if (!siteNavLinks.length || !page) return;
+            const st = page.scrollTop;
+            let current = 'screen-hero';
+            siteNavLinks.forEach(link => {
+                const id = link.dataset.target;
+                const sec = id ? document.getElementById(id) : null;
+                if (!sec) return;
+                const top = getOffsetTopWithinScroll(sec);
+                if (st >= (top - 260)) current = id;
+            });
+            siteNavLinks.forEach(link => {
+                const isActive = link.dataset.target === current;
+                link.classList.toggle('active', isActive);
+            });
+        };
+
+        siteNavLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                const id = link.dataset.target;
+                const target = id ? document.getElementById(id) : null;
+                if (!target || !page) return;
+                e.preventDefault();
+                page.scrollTo({ top: getOffsetTopWithinScroll(target), behavior: 'smooth' });
+            });
+        });
+
+        updateSiteNavActive();
+
+        // 轻量“滞留”观感：进入屏幕/区块时过渡
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                if(entry.isIntersecting) entry.target.classList.add('visible');
+                if(entry.isIntersecting) {
+                    if (entry.target.classList.contains('screen')) entry.target.classList.add('screen-visible');
+                    if (entry.target.classList.contains('year-section')) entry.target.classList.add('visible');
+                }
             });
-        }, { threshold: 0.1 });
+        }, { threshold: 0.12, root: page || null });
+        document.querySelectorAll('.screen').forEach(sec => observer.observe(sec));
         document.querySelectorAll('.year-section').forEach(sec => observer.observe(sec));
 
         // 视频悬停预览
@@ -91,53 +199,85 @@ document.addEventListener('DOMContentLoaded', () => {
         const lightbox = document.getElementById('lightbox');
         const boxContent = document.getElementById('lightbox-media-container');
         
+        const openLightbox = ({ type, src }) => {
+            if (!lightbox || !boxContent || !src) return;
+            boxContent.innerHTML = '';
+            if (type === 'video') {
+                const vid = document.createElement('video');
+                vid.src = src; vid.controls = true; vid.autoplay = true;
+                vid.style.maxWidth = '100%'; vid.style.maxHeight = '85vh';
+                boxContent.appendChild(vid);
+            } else {
+                const img = document.createElement('img');
+                img.src = src;
+                boxContent.appendChild(img);
+                enableZoom(img);
+            }
+            lightbox.classList.add('active');
+            if (page) page.style.overflow = 'hidden';
+        };
+        window.openLightbox = openLightbox;
+
         document.querySelectorAll('.card').forEach(card => {
             card.addEventListener('click', () => {
                 const type = card.dataset.type;
                 const src = card.dataset.src;
-                boxContent.innerHTML = '';
-
-                if(type === 'video') {
-                    const vid = document.createElement('video');
-                    vid.src = src; vid.controls = true; vid.autoplay = true;
-                    vid.style.maxWidth='100%'; vid.style.maxHeight='85vh';
-                    boxContent.appendChild(vid);
-                } else {
-                    const img = document.createElement('img');
-                    img.src = src;
-                    boxContent.appendChild(img);
-                    enableZoom(img);
-                }
-                lightbox.classList.add('active');
-                document.body.style.overflow = 'hidden';
+                openLightbox({ type, src });
             });
         });
 
         const closeBox = () => {
+            if (!lightbox) return;
             lightbox.classList.remove('active');
-            document.body.style.overflow = '';
+            if (page) page.style.overflow = '';
             const v = boxContent.querySelector('video');
             if(v) v.pause();
             setTimeout(()=> boxContent.innerHTML='', 300);
         };
         
-        document.querySelector('.close-btn').addEventListener('click', closeBox);
-        lightbox.addEventListener('click', (e) => {
-            if(e.target === lightbox || e.target.classList.contains('lightbox-content')) closeBox();
+        const closeBtn = document.querySelector('.close-btn');
+        if (closeBtn) closeBtn.addEventListener('click', closeBox);
+        if (lightbox) {
+            lightbox.addEventListener('click', (e) => {
+                if(e.target === lightbox || e.target.classList.contains('lightbox-content')) closeBox();
+            });
+        }
+
+        // 让年份导航在分屏滚动容器中也能平滑定位
+        document.querySelectorAll('.sticky-nav a[href^="#"]').forEach(a => {
+            a.addEventListener('click', (e) => {
+                if (!page) return;
+                const href = a.getAttribute('href');
+                const id = href ? href.slice(1) : '';
+                const target = id ? document.getElementById(id) : null;
+                if (!target) return;
+                e.preventDefault();
+                const top = getOffsetTopWithinScroll(target) - 18;
+                page.scrollTo({ top, behavior: 'smooth' });
+            });
         });
 
         // 导航联动
-        window.addEventListener('scroll', () => {
-            const sections = document.querySelectorAll('section');
+        const scrollEl = page || window;
+        const getScrollTop = () => page ? page.scrollTop : window.pageYOffset;
+
+        const updateNavActive = () => {
+            const sections = document.querySelectorAll('.year-section');
             let current = '';
+            const st = getScrollTop();
             sections.forEach(sec => {
-                if(pageYOffset >= (sec.offsetTop - 300)) current = sec.id;
+                const top = getOffsetTopWithinScroll(sec);
+                if (st >= (top - 300)) current = sec.id;
             });
             document.querySelectorAll('.sticky-nav a').forEach(a => {
                 a.classList.remove('active');
-                if(a.getAttribute('href') === `#${current}`) a.classList.add('active');
+                if (a.getAttribute('href') === `#${current}`) a.classList.add('active');
             });
-        });
+        };
+
+        scrollEl.addEventListener('scroll', updateNavActive, { passive: true });
+        scrollEl.addEventListener('scroll', updateSiteNavActive, { passive: true });
+        updateNavActive();
     }
 
     function enableZoom(el) {

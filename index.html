@@ -6,27 +6,55 @@
     <title>AUTUMN | 视觉档案</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
 </head>
 <body>
 
-    <header class="hero-section">
-        <div id="canvas-container"></div>
-
-        <div class="hero-content">
-            <h1>AUTUMN <br><span class="highlight"> Creations.</span></h1>
-            <p>今日有新事</p>
-            
-        </div>
-    </header>
-
-    <nav class="sticky-nav">
-        <ul id="nav-list">
+    <div id="page" class="snap-container">
+        <nav class="site-nav" aria-label="主导航">
+            <ul>
+                <li><a href="index.html" class="active">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="project.html">Project</a></li>
             </ul>
-    </nav>
+        </nav>
 
-    <main class="gallery-container" id="gallery-root">
-        </main>
+        <!-- Screen 1: Hero -->
+        <header class="hero-section screen" id="screen-hero" aria-label="首屏">
+            <div id="canvas-container"></div>
+
+            <div class="hero-content">
+                <h1>AUTUMN <br><span class="highlight"> Creations.</span></h1>
+                <p>今日有新事</p>
+            </div>
+        </header>
+
+        <!-- Screen 2: Random pick -->
+        <section class="screen random-screen" id="screen-random" aria-label="随机抽取">
+            <div class="random-inner">
+                <div class="random-head">
+                    <h2 class="random-title">随机逛逛</h2>
+                    <p class="random-subtitle">Random Stroll</p>
+                </div>
+
+                <div class="random-actions">
+                    <button type="button" class="btn-primary" id="random-pick-btn">随机抽取</button>
+                </div>
+
+                <div class="random-stage" id="random-stage" aria-live="polite">
+                    <div class="random-placeholder" id="random-placeholder">点击上方按钮开始抽取</div>
+                    <figure class="random-preview" id="random-preview" hidden>
+                        <div class="random-media" id="random-media"></div>
+                        <figcaption class="random-caption">
+                            <div class="random-file" id="random-file"></div>
+                        </figcaption>
+                    </figure>
+                </div>
+            </div>
+        </section>
+
+    </div>
 
     <div id="lightbox" class="lightbox">
         <span class="close-btn">&times;</span>
